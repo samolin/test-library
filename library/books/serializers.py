@@ -1,7 +1,22 @@
 from rest_framework import serializers
+from django.core.validators import MaxLengthValidator
+
 from .models import Book
 
+
 class BookSerializer(serializers.ModelSerializer):
+    author_books_count = serializers.SerializerMethodField()
+
+    def get_author_books_count(self, instance):
+        return Book.objects.filter(author=instance.author).count()
+
     class Meta:
         model = Book
-        fields = ['id', 'title', 'author', 'publication_year', 'isbn']
+        fields = [
+            'id',
+            'title',
+            'author',
+            'publication_year',
+            'isbn',
+            'author_books_count'
+        ]
