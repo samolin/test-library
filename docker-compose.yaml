@@ -28,7 +28,30 @@ services:
       - "3306:3306"
     volumes:
       - ./dbdata/${MYSQL_DATABASE}:/var/lib/mysql
+  
+  redis:
+    container_name: library-redis
+    image: redislabs/rejson:2.2.0
+    restart: always
+    volumes:
+      - redis_data:/data
+    ports:
+      - "${REDIS_PORT}:6379"
+    env_file:
+      - .env
+    
+  celery:
+    build : .
+    container_name: library-celery
+    command: poetry run celery -A library worker -l INFO
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - api
 
 volumes:
   database_data:
     name: "library-database"
+  redis_data:
+    name: "library-redis"
